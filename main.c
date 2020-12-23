@@ -118,6 +118,12 @@ void dibFig(int hori, int vert, int rot, int tipo){
 					dibCuad(hori,vert+1);
 					dibCuad(hori,vert+2);
 				}
+			 }
+			 if (tipo == 3){
+				 dibCuad(hori,vert);
+				 dibCuad(hori+1,vert);
+				 dibCuad(hori,vert+1);
+				 dibCuad(hori+1,vert+1);
 			 }	
 }
 //función que escribe una figura en el tablero cuando ya no puede bajar más 
@@ -131,23 +137,119 @@ int writeTablero(int a[12][9], int hori, int vert, int rot, int fig){
 		}
 		if (rot == 2){
 			a[vert][hori]=1;
-			a[vert][hori]=1;
-			a[vert][hori]=1;
-			a[vert][hori]=1;
+			a[vert+1][hori]=1;
+			a[vert+2][hori]=1;
+			a[vert+2][hori+1]=1;
 		}
 		if (rot == 3){
-			a[vert][hori]=1;
-			a[vert][hori]=1;
-			a[vert][hori]=1;
-			a[vert][hori]=1;
+			a[vert+1][hori]=1;
+			a[vert+1][hori+1]=1;
+			a[vert+1][hori+2]=1;
+			a[vert][hori+2]=1;
 		}
 		if (rot == 4){
 			a[vert][hori]=1;
-			a[vert][hori]=1;
-			a[vert][hori]=1;
-			a[vert][hori]=1;
+			a[vert][hori+1]=1;
+			a[vert+1][hori+1]=1;
+			a[vert+2][hori+1]=1;
 		}
 	}
+	if (fig == 2){
+		if (rot == 1){
+			a[vert][hori]=1;
+			a[vert][hori+1]=1;
+			a[vert][hori+2]=1;
+		}
+		if (rot == 2){
+			a[vert][hori]=1;
+			a[vert+1][hori]=1;
+			a[vert+2][hori]=1;
+			
+		}
+		if (rot == 3){
+			a[vert][hori]=1;
+			a[vert][hori+1]=1;
+			a[vert][hori+2]=1;
+		}
+		if (rot == 4){
+			a[vert][hori]=1;
+			a[vert+1][hori]=1;
+			a[vert+2][hori]=1;
+		
+		}
+	}
+	if (fig == 3){
+		a[vert][hori]=1;
+		a[vert+1][hori]=1;
+		a[vert][hori+1]=1;
+		a[vert+1][hori+1]=1;
+	}
+}
+
+bool checkTablero(int a[12][9], int hori, int vert, int rot, int fig){ //true si el casillero de abajo esta ocupado
+	if (fig == 1){ //figura L
+		if (rot == 1){
+			if ( (a[vert+2][hori] == 1)||(a[vert+1][hori+1] == 1) || (a[vert+1][hori+2] == 1) ){
+				return true;
+			}
+			else { return false; }
+			
+		}
+		if (rot == 2){
+			if ( (a[vert+3][hori] == 1)||(a[vert+3][hori+1] == 1) ){
+				return true;
+			}
+			else { return false; }
+		}
+		if (rot == 3){
+			if ( (a[vert+2][hori+2] == 1)||(a[vert+1][hori+1] == 1) || (a[vert+1][hori] == 1) ){
+				return true;
+			}
+			else { return false; }
+		}
+		if (rot == 4){
+			if ( (a[vert+3][hori] == 1)||(a[vert+1][hori+1] == 1) ){
+				return true;
+			}
+			else { return false; }
+			
+		}
+	}
+	if (fig == 2){ //Figura |
+		if (rot == 1){
+			if ( (a[vert+1][hori] == 1)||(a[vert+1][hori+1] == 1) || (a[vert+1][hori+2] == 1) ){
+				return true;
+			}
+			else { return false; }
+		}
+		if (rot == 2){
+			if ( (a[vert+3][hori] == 1) ){
+				return true;
+			}
+			else { return false; }
+		}
+		if (rot == 3){
+			if ( (a[vert+1][hori] == 1)||(a[vert+1][hori+1] == 1) || (a[vert+1][hori+2] == 1) ){
+				return true;
+			}
+			else { return false; }
+		}
+		if (rot == 4){
+			if ( (a[vert+3][hori] == 1) ){
+				return true;
+			}
+			else { return false; }
+		}
+		
+	}
+	if (fig == 3){ //figura cuadrado
+		if ( (a[vert+2][hori] == 1)||(a[vert+2][hori+1] == 1) ){
+			return true;
+		}
+		else { return false; }
+		
+	}
+	else {return false;}
 }
 	
 
@@ -169,6 +271,9 @@ int tablero[12][9] ={
 int rotacion = 1;
 int horizontal = 1;
 int vertical = 1;
+int score = 0;
+int fig = 2;
+bool baj = false;
 
 /** The main function */
 int main(void)
@@ -240,7 +345,7 @@ int main(void)
 	
 		//END TABLERO
 		
-		dibFig(horizontal,vertical,rotacion,1);
+		dibFig(horizontal,vertical,rotacion,fig);
 		
 		// Here would be a nice place for drawing a bitmap, wouldn't it?
 		
@@ -291,7 +396,10 @@ ISR(USART_RX_vect)
 ISR (TIMER1_OVF_vect)    // Timer1 ISR
 {
 	vertical = vertical + 1;
-	if (vertical == 9){writeTablero(tablero,horizontal,vertical,rotacion,1);}
-	if (vertical == 10){vertical = 0;}
+	baj = checkTablero(tablero,horizontal,vertical,rotacion,fig);
+	if (baj == true){writeTablero(tablero,horizontal,vertical,rotacion,fig); vertical = 0; fig = fig + 1;
+		if (fig == 4){fig = 1;}
+	}
+		
 	TCNT1 = 50000;   // for 1 sec at 16 MHz
 }
