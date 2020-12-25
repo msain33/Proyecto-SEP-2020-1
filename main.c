@@ -251,7 +251,23 @@ bool checkTablero(int a[12][9], int hori, int vert, int rot, int fig){ //true si
 	}
 	else {return false;}
 }
-	
+
+int clearTablero(int a[12][9]){
+	for (int x=0; x<8; x=x+1){
+		for (int y=0; y<11; y=y+1){
+		 a[y][x]=0;	
+		}
+		
+	}
+}
+
+bool checkEnd(int a[12][9]){
+	if ((a[1][0]==1)||(a[1][1]==1)||(a[1][2]==1)||(a[1][3]==1)||(a[1][4]==1)||(a[1][5]==1)||(a[1][6]==1)||(a[1][7]==1)||(a[8][0]==1)){
+		return true;
+	}
+	else {return false;}
+}
+
 
 int tablero[12][9] ={
 	{0,0,0,0,0,0,0,0,1},
@@ -273,7 +289,7 @@ int8_t modo = 2; //1 si está jugando 2 si está en menú
 int8_t cursor = 1; //1 si está en selección de juego 2 si está en dificultad
 int8_t select = 2; // se vuelve 2 si se selecciona una opción para hacer un cambio en la pantalla
 int8_t dif = 1; // dificultad: 1 easy, 2 hard
-
+int8_t endgame = 1; //2 si termino
 //CONTROL FIGURAS
 int rotacion = 1;
 int horizontal = 1;
@@ -358,18 +374,19 @@ int main(void)
 		
 		dibFig(horizontal,vertical,rotacion,fig);
 		}
-		if (modo == 2){
+		else if (modo == 2){
 			if (select == 2){
+				if (endgame == 2){drawtext(2,7, " HAS PERDIDO! ", ST7735_BLACK, ST7735_WHITE,2);}
 				fillScreen(ST7735_BLACK);
-				select = 1;
+				select = 1; endgame = 1;
 			}
 			drawtext(4,2,"TETRIS", ST7735_WHITE, ST7735_BLACK,3);
 			if (cursor == 1){
 			drawtext(6,7, "JUGAR", ST7735_BLACK, ST7735_WHITE,1);
-			if (dif == 1){
-			drawtext(6,9, "DIFICULTAD: EASY", ST7735_WHITE, ST7735_BLACK,1);}
-			else if (dif == 2){
-			drawtext(6,9, "DIFICULTAD: HARD", ST7735_WHITE, ST7735_BLACK,1);}
+				if (dif == 1){
+				drawtext(6,9, "DIFICULTAD: EASY", ST7735_WHITE, ST7735_BLACK,1);}
+				else if (dif == 2){
+				drawtext(6,9, "DIFICULTAD: HARD", ST7735_WHITE, ST7735_BLACK,1);}
 			}
 			else if (cursor ==2){
 				drawtext(6,7, "JUGAR", ST7735_WHITE, ST7735_BLACK,1);
@@ -407,19 +424,18 @@ ISR(USART_RX_vect)
 	 
      if (Rx == 50){
                    horizontal = horizontal + 1; if (horizontal > 7){horizontal=7;}
-				   
 				   }
 	 if (Rx == 51){if (rotacion == 4){rotacion=0;}
 					rotacion = rotacion+1;}
 	 if (Rx == 52){//VOLVER A MENU
 		
 		 if (cursor == 1){
-		 if (modo == 1){modo = 2; select = 2;}
-		 else if (modo == 2){modo = 1; select = 2;}
+			if (modo == 1){modo = 2; select = 2;}
+			else if (modo == 2){modo = 1; select = 2;}
 		 }
 		 else if (cursor == 2){ 
-		   if (dif == 1){dif = 2;}
-		   else if (dif == 2){dif = 1;} }
+			if (dif == 1){dif = 2;}
+			else if (dif == 2){dif = 1;} }
 	 }
 	 
 	 USART_Transmit_String("Recibido:");
@@ -446,7 +462,16 @@ ISR (TIMER1_OVF_vect)    // Timer1 ISR
 	baj = checkTablero(tablero,horizontal,vertical,rotacion,fig);
 	if (baj == true){writeTablero(tablero,horizontal,vertical,rotacion,fig); vertical = 0; fig = fig + 1;
 		if (fig == 4){fig = 1;}
+		}
+	if (checkEnd(tablero) == true){modo = 2; select = 2; endgame = 2; rotacion = 1;
+		clearTablero(tablero);
+		
 	}
 	}
-	TCNT1 = 50000;   // for 1 sec at 16 MHz
+	
+	if (dif == 1){
+	TCNT1 = 45000; }  // for 1 sec at 16 MHz
+	else if (dif == 2){
+	TCNT1 = 60000; 	
+	}
 }
