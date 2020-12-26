@@ -298,6 +298,8 @@ int fig = 2;
 //SCORE
 int score = 0;
 int maxscore = 0;
+char scor[3]="0";
+char maxscor[3]="0";
 
 bool baj = false;
 
@@ -353,13 +355,16 @@ int main(void)
 
 		if (modo == 1){
 		//DIBUJA TABLERO DE JUEGO
-		if (select == 2){fillScreen(ST7735_BLACK); select = 1;}
+		if (select == 2){
+			fillScreen(ST7735_BLACK); select = 1;}
 		
 		drawRect(87,6+8,72,15,ST7735_WHITE);
 		drawtext(18,2,"TETRIS", ST7735_WHITE, ST7735_BLACK,1);
 		drawtext(18,5,"SCORE", ST7735_WHITE, ST7735_BLACK,1);
+		drawtext(18,6, scor , ST7735_WHITE, ST7735_BLACK,2);
 		drawRect(87,6+32+4,72,30,ST7735_WHITE);
 		drawtext(16,9,"MAX SCORE", ST7735_WHITE, ST7735_BLACK,1);
+		drawtext(18,10, maxscor , ST7735_WHITE, ST7735_BLACK,2);
 		drawRect(87,6+32+32+8,72,30,ST7735_WHITE);
 		for (int x=0; x<10; x=x+1){fillRect(5+8*x,6+8,7,7,ST7735_WHITE);
 			                      fillRect(5+8*x,102+8,7,7,ST7735_WHITE);}
@@ -375,8 +380,7 @@ int main(void)
 		dibFig(horizontal,vertical,rotacion,fig);
 		}
 		else if (modo == 2){
-			if (select == 2){
-				if (endgame == 2){drawtext(2,7, " HAS PERDIDO! ", ST7735_BLACK, ST7735_WHITE,2);}
+			if (select == 2){ if (endgame == 2){drawtext(2,7, " HAS PERDIDO! ", ST7735_BLACK, ST7735_WHITE,2);}
 				fillScreen(ST7735_BLACK);
 				select = 1; endgame = 1;
 			}
@@ -417,7 +421,9 @@ ISR(USART_RX_vect)
 	 Rx = USART_Receive_char();
 	 
 	 if (Rx == 49){
-	               horizontal = horizontal - 1; if (horizontal < 0){horizontal=0;}
+	                if (modo == 1){
+						horizontal = horizontal - 1; if (horizontal < 0){horizontal=0;}
+					}
 				   if (cursor == 1){cursor = 2;}
 				   else if (cursor == 2){cursor = 1;}
 				   }
@@ -460,18 +466,32 @@ ISR (TIMER1_OVF_vect)    // Timer1 ISR
 {   if (modo == 1){
 	vertical = vertical + 1;
 	baj = checkTablero(tablero,horizontal,vertical,rotacion,fig);
-	if (baj == true){writeTablero(tablero,horizontal,vertical,rotacion,fig); vertical = 0; fig = fig + 1;
+	if (baj == true){
+		writeTablero(tablero,horizontal,vertical,rotacion,fig); 
+		vertical = 0; 
+		fig = fig + 1; 
+		score = score + 1;
+		itoa(score,scor,10);
 		if (fig == 4){fig = 1;}
 		}
-	if (checkEnd(tablero) == true){modo = 2; select = 2; endgame = 2; rotacion = 1;
+	if (checkEnd(tablero) == true){
+		modo = 2;
+		select = 2; 
+		endgame = 2; 
+		rotacion = 1;
+		vertical = 0; 
+		if (score > maxscore){maxscore = score;}
+		score = 0;
+		itoa(score,scor,10);
+	    itoa(maxscore,maxscor,10);
 		clearTablero(tablero);
 		
 	}
 	}
 	
 	if (dif == 1){
-	TCNT1 = 45000; }  // for 1 sec at 16 MHz
-	else if (dif == 2){
+	TCNT1 = 50000; }  // for 1 sec at 16 MHz
+	else {
 	TCNT1 = 60000; 	
 	}
 }
