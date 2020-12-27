@@ -202,13 +202,13 @@ bool checkTablero(int a[12][9], int hori, int vert, int rot, int fig){ //true si
 			else { return false; }
 		}
 		if (rot == 3){
-			if ( (a[vert+2][hori+2] == 1)||(a[vert+1][hori+1] == 1) || (a[vert+1][hori] == 1) ){
+			if ( (a[vert+2][hori+2] == 1)||(a[vert+2][hori+1] == 1) || (a[vert+2][hori] == 1) ){
 				return true;
 			}
 			else { return false; }
 		}
 		if (rot == 4){
-			if ( (a[vert+3][hori] == 1)||(a[vert+1][hori+1] == 1) ){
+			if ( (a[vert+1][hori] == 1)||(a[vert+3][hori+1] == 1) ){
 				return true;
 			}
 			else { return false; }
@@ -262,32 +262,48 @@ int clearTablero(int a[12][9]){
 }
 
 bool checkEnd(int a[12][9]){
-	if ((a[1][0]==1)||(a[1][1]==1)||(a[1][2]==1)||(a[1][3]==1)||(a[1][4]==1)||(a[1][5]==1)||(a[1][6]==1)||(a[1][7]==1)||(a[8][0]==1)){
+	if ((a[1][0]==1)||(a[1][1]==1)||(a[1][2]==1)||(a[1][3]==1)||(a[1][4]==1)||(a[1][5]==1)||(a[1][6]==1)||(a[1][7]==1)){
 		return true;
 	}
 	else {return false;}
 }
 
+int checkLinea(int a[12][9], int scors){
+	for (int y=0; y<11; y=y+1){
+	if ((a[y][0]==1)&&(a[y][1]==1)&&(a[y][2]==1)&&(a[y][3]==1)&&(a[y][4]==1)&&(a[y][5]==1)&&(a[y][6]==1)&&(a[y][7]==1)){
+
+		for (int x=0; x<8; x=x+1){
+			for (int i=y; i>=0; i=i-1){
+				if (a[i][x]==1){a[i][x]=0; a[i+1][x]=1;}
+			}
+		scors = scors +2;	
+		}
+		
+	}
+	}
+	
+}
+
 
 int tablero[12][9] ={
-	{0,0,0,0,0,0,0,0,1},
-	{0,0,0,0,0,0,0,0,1},
-	{0,0,0,0,0,0,0,0,1},
-	{0,0,0,0,0,0,0,0,1},
-	{0,0,0,0,0,0,0,0,1},
-	{0,0,0,0,0,0,0,0,1},
-	{0,0,0,0,0,0,0,0,1},
-	{0,0,0,0,0,0,0,0,1},
-	{0,0,0,0,0,0,0,0,1},
-	{0,0,0,0,0,0,0,0,1},
-	{0,0,0,0,0,0,0,0,1},
+	{0,0,0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0,0,0},
 	{1,1,1,1,1,1,1,1,1},
 };
 
 //CONTROL USUARIO
 int8_t modo = 2; //1 si está jugando 2 si está en menú
 int8_t cursor = 1; //1 si está en selección de juego 2 si está en dificultad
-int8_t select = 2; // se vuelve 2 si se selecciona una opción para hacer un cambio en la pantalla
+int8_t select = 1; // se vuelve 2 si se selecciona una opción para hacer un cambio en la pantalla
 int8_t dif = 1; // dificultad: 1 easy, 2 hard
 int8_t endgame = 1; //2 si termino
 //CONTROL FIGURAS
@@ -474,6 +490,7 @@ ISR (TIMER1_OVF_vect)    // Timer1 ISR
 		itoa(score,scor,10);
 		if (fig == 4){fig = 1;}
 		}
+	  checkLinea(tablero,score);
 	if (checkEnd(tablero) == true){
 		modo = 2;
 		select = 2; 
@@ -487,6 +504,7 @@ ISR (TIMER1_OVF_vect)    // Timer1 ISR
 		clearTablero(tablero);
 		
 	}
+
 	}
 	
 	if (dif == 1){
