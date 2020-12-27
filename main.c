@@ -274,7 +274,7 @@ int checkLinea(int a[12][9], int scors){
 
 		for (int x=0; x<8; x=x+1){
 			for (int i=y; i>=0; i=i-1){
-				if (a[i][x]==1){a[i][x]=0; a[i+1][x]=1;}
+				if (a[i][x]==1){ a[i][x]=0; a[i+1][x]=1;}
 			}
 		scors = scors +2;	
 		}
