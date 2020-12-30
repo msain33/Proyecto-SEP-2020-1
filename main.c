@@ -47,7 +47,6 @@ void dibCuad(int x, int y);
 void borCuad(int x, int y);
 void actTablero(int a[12][9]);
 void dibFig(int vert, int hor, int rot, int tipo);
-
 void dibCuad(int x, int y){
 	fillRect(13+8*x,22+8*y,7,7,ST7735_WHITE);
 }
@@ -271,19 +270,21 @@ bool checkEnd(int a[12][9]){
 int checkLinea(int a[12][9], int scors){
 	for (int y=0; y<11; y=y+1){
 	if ((a[y][0]==1)&&(a[y][1]==1)&&(a[y][2]==1)&&(a[y][3]==1)&&(a[y][4]==1)&&(a[y][5]==1)&&(a[y][6]==1)&&(a[y][7]==1)){
-
+    scors = scors + 2;
+	
+	    for (int x=0; x<8; x=x+1){a[y][x]=0;} 
+	
 		for (int x=0; x<8; x=x+1){
-			for (int i=y; i>=0; i=i-1){
-				if (a[i][x]==1){ a[i][x]=0; a[i+1][x]=1;}
+			for (int i=0; i<y; i=i+1){
+				if (a[y-i][x]==1){  a[y-i][x]=0; a[y-i+1][x]=1;}
 			}
-		scors = scors +2;	
+			
 		}
 		
 	}
 	}
 	
 }
-
 
 int tablero[12][9] ={
 	{0,0,0,0,0,0,0,0,0},
@@ -371,8 +372,36 @@ int main(void)
 
 		if (modo == 1){
 		//DIBUJA TABLERO DE JUEGO
-		if (select == 2){
-			fillScreen(ST7735_BLACK); select = 1;}
+		if (select == 2){ vertical = 0;
+			fillScreen(ST7735_BLACK); select = 1; vertical = 0;}
+			
+		//####LIMITE HORIZONTAL
+		if (fig==1){
+			if (rotacion == 1){
+				if (horizontal > 5){horizontal = 5;}
+			}
+			else if (rotacion == 2){
+				if (horizontal > 6){horizontal = 6;}
+			}
+			else if (rotacion == 3){
+				if (horizontal > 5){horizontal = 5;}
+			}
+			else if (rotacion == 4){
+				if (horizontal > 6){horizontal = 6;}
+			}
+		}
+		else if (fig==2){
+			if (rotacion == 1){
+				if (horizontal > 5){horizontal = 5;}
+			}
+			else if (rotacion == 3){
+				if (horizontal > 5){horizontal = 5;}
+			}
+		}
+		else if (fig==3){
+			if (horizontal > 6){horizontal = 6;}
+		}
+		//####
 		
 		drawRect(87,6+8,72,15,ST7735_WHITE);
 		drawtext(18,2,"TETRIS", ST7735_WHITE, ST7735_BLACK,1);
@@ -440,12 +469,43 @@ ISR(USART_RX_vect)
 	                if (modo == 1){
 						horizontal = horizontal - 1; if (horizontal < 0){horizontal=0;}
 					}
-				   if (cursor == 1){cursor = 2;}
-				   else if (cursor == 2){cursor = 1;}
+					else if (modo == 2){
+						if (cursor == 1){cursor = 2;}
+						else if (cursor == 2){cursor = 1;}
+						}
 				   }
 	 
      if (Rx == 50){
                    horizontal = horizontal + 1; if (horizontal > 7){horizontal=7;}
+					
+					//####LIMITE HORIZONTAL
+					if (fig==1){
+						if (rotacion == 1){
+							if (horizontal > 5){horizontal = 5;}
+						}
+						else if (rotacion == 2){
+							if (horizontal > 6){horizontal = 6;}
+						}
+						else if (rotacion == 3){
+							if (horizontal > 5){horizontal = 5;}
+						}
+						else if (rotacion == 4){
+							if (horizontal > 6){horizontal = 6;}
+						}
+					}
+					else if (fig==2){
+						if (rotacion == 1){
+							if (horizontal > 5){horizontal = 5;}
+						}
+						else if (rotacion == 3){
+							if (horizontal > 5){horizontal = 5;}
+						}
+					}
+					else if (fig==3){
+						if (horizontal > 6){horizontal = 6;}
+					}
+					//####   
+					   
 				   }
 	 if (Rx == 51){if (rotacion == 4){rotacion=0;}
 					rotacion = rotacion+1;}
@@ -487,10 +547,10 @@ ISR (TIMER1_OVF_vect)    // Timer1 ISR
 		vertical = 0; 
 		fig = fig + 1; 
 		score = score + 1;
-		itoa(score,scor,10);
+		
 		if (fig == 4){fig = 1;}
 		}
-	  checkLinea(tablero,score);
+	  checkLinea(tablero,score); itoa(score,scor,10);
 	if (checkEnd(tablero) == true){
 		modo = 2;
 		select = 2; 
